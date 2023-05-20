@@ -45,9 +45,7 @@ const LoginScreen = ({ navigation }) => {
           value={password}
         />
       </View>
-      {userRedux.error && (
-        <Text style={styles.userRedux.error}>{userRedux.error}</Text>
-      )}
+      {userRedux.error && <Text style={styles.message}>{userRedux.error}</Text>}
       <Button
         onPress={() => {
           dispatch(userLogin({ email, password }));
