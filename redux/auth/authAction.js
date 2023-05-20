@@ -1,9 +1,11 @@
-import { API_URL } from "../../context/AuthContext";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { API_URL } from "../../constants";
 
 // authActions.js
+
+// middleware buat ngelakuin fungsi async di redux
 export const userLogin = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {

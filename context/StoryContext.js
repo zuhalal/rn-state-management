@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { API_URL } from "./AuthContext";
+import { API_URL } from "../constants";
 
 const StoryContext = createContext({});
 
