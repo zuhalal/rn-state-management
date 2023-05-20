@@ -2,16 +2,17 @@ import React, { useEffect } from "react";
 import {
   Text,
   View,
-  SafeAreaView,
   FlatList,
   StyleSheet,
   StatusBar,
   Image,
   Button,
 } from "react-native";
-import { useAuthContext } from "../../context/AuthContext";
-import { AppBar } from "../../components/AppBar";
 import { useStoryContext } from "../../context/StoryContext";
+import { useSelector, useDispatch } from "react-redux";
+import { getAuthUser } from "../../redux/auth/authSelector";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { resetUser, setUser } from "../../redux/auth/authSlice";
 
 const Item = ({ name, description, photoUrl }) => (
   <View style={styles.item}>
@@ -27,18 +28,41 @@ const Item = ({ name, description, photoUrl }) => (
 );
 
 const HomeScreen = ({ navigation }) => {
-  const { user, logout } = useAuthContext();
   const { listStory, fetchStory } = useStoryContext();
 
+  const dispatch = useDispatch();
+
+  const getUser = async () => {
+    try {
+      const value = await AsyncStorage.getItem("@user");
+      if (value !== null) {
+        dispatch(setUser(JSON.parse(value)));
+        return value;
+      }
+    } catch (e) {
+      return null;
+    }
+  };
+
   useEffect(() => {
-    if (!user) {
+    void (async () => await getUser())();
+  }, []);
+
+  const userRedux = useSelector(getAuthUser);
+  useEffect(() => {
+    if (userRedux.userToken === "") {
       navigation.replace("Login");
     } else {
       void (async () => {
-        await fetchStory(user.token);
+        await fetchStory(userRedux.userToken);
       })();
     }
-  }, [user]);
+  }, [userRedux]);
+
+  const logout = async () => {
+    await AsyncStorage.removeItem("@user");
+    dispatch(resetUser());
+  };
 
   return (
     <View style={styles.container}>
@@ -47,7 +71,7 @@ const HomeScreen = ({ navigation }) => {
           textAlign: "center",
         }}
       >
-        Hello, welcome back {user?.name}
+        Hello, welcome back {userRedux?.userInfo?.name}
       </Text>
       <Button
         title="Logout"

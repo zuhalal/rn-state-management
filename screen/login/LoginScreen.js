@@ -7,19 +7,24 @@ import {
   View,
   Text,
 } from "react-native";
-import { useAuthContext } from "../../context/AuthContext";
+
+import { useDispatch, useSelector } from "react-redux";
+import { userLogin } from "../../redux/auth/authAction";
+import { getAuthUser } from "../../redux/auth/authSelector";
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
-  const { user, login, message } = useAuthContext();
+  const userRedux = useSelector(getAuthUser);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (user) {
+    if (userRedux.userToken !== "") {
       navigation.replace("Home");
     }
-  }, [user]);
+  }, [userRedux]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -40,12 +45,12 @@ const LoginScreen = ({ navigation }) => {
           value={password}
         />
       </View>
-      {message && <Text style={styles.message}>{message}</Text>}
+      {userRedux.error && (
+        <Text style={styles.userRedux.error}>{userRedux.error}</Text>
+      )}
       <Button
         onPress={() => {
-          void (async () => {
-            await login(email, password);
-          })();
+          dispatch(userLogin({ email, password }));
         }}
         title="Login"
         color="#3182CE"
